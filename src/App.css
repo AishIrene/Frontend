@@ -1,38 +1,238 @@
-.App {
-  text-align: center;
+:root {
+  --mainColor: 	#739652;
+  --white: #fff;
+  --black: #242424;
+  --gradient: linear-gradient(90deg, #658548 0%, #739652 100%);
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/********************** GENERAL ************************/
+@media screen and (max-width: 960px) {
+  html, body {
+    overflow-x: hidden;
+    position: fixed;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  z-index: 12;
+
+  width: 100%;
+  height: 100%;
+
+  align-items: center;
+  text-align: center;
+  
+  background-color: var(--mainColor);
+  color: var(--white);
+  font-family: 'Nunito';
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.form video {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  position: fixed;
+}
+
+.form,
+.map-area,
+.treatment,
+.alternative {
   display: flex;
-  flex-direction: column;
+  
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+
+  height: 90vh;
+  width: 100%;
+  font-size: 2rem;
 }
 
-.App-link {
-  color: #61dafb;
+.map-area {
+  background: var(--mainColor);
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+}
+.map {
+  position: relative;
+
+  max-width: 1200px;
+  max-height: 600px;
+
+  width: 90vw;
+  height: 45vh;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/********************** Form ************************/
+
+/********************** Navbar ************************/
+
+.navbar {
+  display: flex;
+  position: sticky;
+  z-index: 999;
+  top: 0;
+  
+  justify-content: center;
+  align-items: center;
+  /*font-size: 2.5rem;*/
+
+  /*height: 100px;*/
+  height: 6rem;
+  background: var(--black);  
+}
+
+.navbar-container {
+  display: flex;
+  flex-grow: 1;
+
+  justify-content: space-between;
+  align-items: center;
+
+  /*height: 80px;*/
+  height: 5rem;
+  max-width: 1400px;
+}
+
+.navbar-logo {
+  display: flex;
+  justify-self: flex-start;
+  margin-left: 2rem;
+  
+  align-items: center;
+  font-size: 2.5rem;
+
+  color: #fff;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.navbar-menu {
+  justify-self: flex-end;
+  display: flex;
+  flex-flow: row;
+
+  text-align: center;
+  justify-content: center;
+
+  /*display: grid;
+  grid-template-columns: repeat(2, auto);
+  grid-gap: 2rem;
+  width: 60vw;*/
+}
+
+.navbar-menu-item {
+  align-self: center;
+  margin-right: 2rem;
+
+  /*height: 80px;*/
+}
+
+.navbar-menu-icon {
+  display: none;
+}
+
+.navbar-logo:hover,
+.navbar-menu-icon:hover {
+  color: var(--mainColor);
+  font-weight: 900;
+  font-style: italic;
+}
+
+@media screen and (max-width: 960px) {
+
+  .navbar-menu-icon {
+    display: flex;
+    margin-right: 2rem;
+
+    cursor: pointer;
   }
-  to {
-    transform: rotate(360deg);
+
+  .navbar-menu {
+    flex-flow: column;
+    position: absolute;
+    top: 6rem;
+    right: -100%;
+
+    justify-content: flex-start;
+
+    width: 90%;
+    height: 90vh;    
+
+    transition: all 0.3s ease;
   }
+
+  .navbar-menu.active {
+    right: 0;
+    z-index: 1;
+
+    background: var(--black);
+    transition: all 1s ease;   
+  }
+
+  .navbar-menu-item {
+    align-self: center;
+    margin-right: 0rem;
+    margin-top: 2rem;
+  }
+}
+
+/********************** MAP ************************/
+.gm-style-iw {
+  color: var(--mainColor);
+}
+
+.infowindow {
+  text-align: left;
+}
+
+/********************** BUTTON ************************/
+.btn {
+  padding: 8px 20px;
+  border-radius: 2px;
+  outline: none;
+  border: none;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background-color: var(--white);
+  color: var(--mainColor);
+  border: 3px solid #fff;
+}
+
+.btn--outline {
+  background-color: transparent;
+  color: #fff;
+  padding: 8px 20px;
+  border: 3px solid #fff;
+}
+
+.btn--medium {
+  padding: 8px 20px;
+  font-size: 18px;
+}
+
+.btn--large {
+  padding: 12px 26px;
+  font-size: 25px;
+}
+
+.btn--large:hover,
+.btn--medium:hover {
+  background: #fff;
+  color: var(--mainColor);
+  font-weight: 900;
+  font-style: italic;
+  transition: all 0.3s ease-out;
+  transition: 250ms;
 }

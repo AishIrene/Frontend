@@ -1,133 +1,128 @@
 import React, {Component} from "react";
 import "./App.css";
 
+/*Imported components*/
+import Navbar from "./components/navbar.js";
+import Form from "./components/form.js";
+import MyMap from "./components/map.js";
+
 class App extends Component {
   
-  //Constructor, will be called when the client starts the App
   constructor(props) {
-    super();
-    //When the "state" changes the page will re-render
+    super(props);
+    
     this.state = {
-      list: false,
+      loaded: false,
       search: false,
+      
+      address: "",
       residuos: [],
       residuo: {},
+      infoContenedores: [],
       contenedores: [],
-      address: "calle juan tornero, 40"
+
+      multipleSearchOptions: false,
+      searchOptions: []
     };
+    
+    this.handleClientSearch = this.handleClientSearch.bind(this);
+    this.clientSearch = this.clientSearch.bind(this);
   }
 
-  //What happens when we first open the app
   componentDidMount() {
     var aux = [];
     fetch("http://localhost:3001/residuos")
       .then(response => response.json())
-      .then(responseJson => {
-        responseJson.map(element => aux.push(element));
+      .then(responseJson => responseJson.map(element => aux.push(element)))
+      .then(promise => 
         this.setState({ 
-          residuos: responseJson 
-        });
-      });
-    this.setState({ 
-      search: false, 
-      list: true,
-    });
+          residuos: aux, 
+          loaded: true
+        })
+      );
   }
 
-  /************** Fetch from API ******************/
-
-  listResiduos = () => {
-    var aux = [];
-    fetch("http://localhost:3001/residuos")
-      .then(response => response.json())
-      .then(responseJson => {
-        responseJson.map(element => aux.push(element));
-        this.setState({ 
-          residuos: responseJson 
-        });
-      });
-    this.setState({ 
-      search: false, 
-      list: true,
-    });
+  handleClientSearch = (name, address) => {
+    if (address == "") address = "all";
+    this.setState({ address: address, search: false});
+    this.clientSearch(name, address);
   };
-
-  /*residuoSearch = (name) => {
-    //var aux = [];
-    fetch(`http://localhost:3001/residuos/${name}`)
-      .then(response => response.json())
-      .then(responseJson => {
-        //responseJson.map(element => aux.push(element));
-        this.setState({ 
-          residuo: responseJson 
-        });
-      });
-    this.setState({ 
-      search: false, 
-      list: true,
-    });
-  };*/
 
   clientSearch = (name, address) => {
-    var aux = [];
+
+    if(this.state.multipleSearchOptions) this.setState({multipleSearchOptions: false});
+
     fetch(`http://localhost:3001/residuos/${name}`)
       .then(response => response.json())
-      .then(responseJson => {
-        //responseJson.map(element => aux.push(element));
-        this.setState({ 
-          residuo: responseJson 
-        });
-      });
-    aux = [];
-    fetch(`http://localhost:3001/residuos/${name}/${address}`)
-      .then(response => response.json())
-      .then(responseJson => {
-        responseJson.map(element => aux.push(element));
-        this.setState({ 
-          contenedores: responseJson 
-        });
-      });
-    this.setState({ 
-      search: true, 
-      list: false,
-    });
+      .then(responseJson => {  
+        if(responseJson.hasOwnProperty('nombre')) {
+          this.setState({ residuo: responseJson });
+          fetch(`http://localhost:3001/residuos/${name}/${address}`)
+            .then(response => response.json())
+            .then(responseJson =>                
+              this.setState({ 
+                infoContenedores: responseJson.slice(0, responseJson[0] + 1),
+                contenedores: responseJson.slice(responseJson[0] + 1),
+                search: true
+              })
+            ).then(promise => document.getElementById("mapa").scrollIntoView({behavior: "smooth"}));
+        } else if (responseJson.length > 1) {
+          this.setState({ 
+            searchOptions: responseJson,
+            multipleSearchOptions: true
+          });
+        } else if(responseJson.message.includes("Not found")) {
+          this.setState({ 
+            searchOptions: this.state.residuos,
+            multipleSearchOptions: true
+          });
+        }
+      });          
   };
 
- /************** Fetch from API ******************/
+  showAlert = (addressStatus) => {
+    document.getElementById('alert').innerHTML = addressStatus;
+  };
+
+  showLeyenda = (leyenda) => {
+    document.getElementById('leyenda').innerHTML = leyenda;
+  };
 
  /************** Render ******************/
   render() {
     return (
-      <div className = "container">
-        {this.state.list ? (
-          <div className = "list">
-            {this.state.residuos.map(residuo => (
-              <li
-                //*!*!*! Cambiar para que cuando se haga click en un residuo nos lleve a la página principal
-                // onClick = {() => this.residuoSearch()}
-                onClick = {() => { 
-                  this.clientSearch(residuo.nombre, this.state.address);
-                }} 
-                className = "list-item"
-              >
-                {residuo.nombre}
-              </li>
-            ))}
-          </div>
+      <>
+        <Navbar></Navbar>
+        {this.state.loaded ? (
+          <Form 
+            residuos = {this.state.residuos}
+            onClientSearch = {this.handleClientSearch}
+            multipleSearchOptions = {this.state.multipleSearchOptions}
+            searchOptions = {this.state.searchOptions}
+          />
         ) : null}
         {this.state.search ? (
-          <div className = "search">
-            <h1
-              onClick = {() => { 
-                console.log(this.state.contenedores);
-                console.log(this.state.residuos);
-                console.log(this.state.residuo);
-              }}
-            >
-              WORKS {this.state.residuos[0].nombre}</h1>
-          </div>
+          <>
+            <div id="mapa" className="map-area">
+              <p id="alert"></p>
+              <div id="leyenda"></div>
+              <MyMap 
+                onInvalidAddress = {this.showAlert}
+                showLeyenda = {this.showLeyenda}
+                contenedores = {this.state.contenedores}
+                infoContenedores = {this.state.infoContenedores}
+                address = {this.state.address}
+              />
+            </div>
+            <div id="treatment" className="treatment">
+
+            </div>
+            <div id="alternative" className="alternative">
+              
+            </div>
+          </>
         ) : null}
-      </div>
+      </>
     )
   }
   /************** Render ******************/
